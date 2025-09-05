@@ -46,4 +46,11 @@ public interface LivroDAO {
      * @return Uma lista de LivroDTO que correspondem a informação.
      */
     List<Livro> pesquisar(String infoLivro);
+
+    /**
+     * Busca um livro pelo seu ISBN.
+     * @param isbn O ISBN do livro para ser buscado.
+     * @return O Livro ou null se não for encontrado.
+     */
+    Livro buscarPorIsbn(String isbn);
 }

@@ -99,4 +99,18 @@ public class LivroDAOImpl implements LivroDAO {
 
         return query.getResultList();
     }
+
+    @Override
+    public Livro buscarPorIsbn(String isbn) {
+        TypedQuery<Livro> query = em.createQuery(
+                "SELECT l FROM Livro l WHERE l.isbn = :isbn", Livro.class);
+        query.setParameter("isbn", isbn);
+
+        try {
+            return query.getSingleResult();
+        } catch (javax.persistence.NoResultException e) {
+            return null;
+        }
+
+    }
 }

@@ -19,6 +19,24 @@ public class LivroServiceImpl implements LivroService {
     }
 
     public void salvarOuAtualizar(Livro livro) {
+
+        if (livro.getId() == null) {
+            Livro livroExistente = livroDAOImpl.buscarPorIsbn(livro.getIsbn());
+
+            if (livroExistente != null) {
+                throw new IllegalArgumentException("Erro: Já existe um livro cadastrado com este ISBN.");
+            }
+        }
+
+        else {
+
+            Livro livroExistente = livroDAOImpl.buscarPorIsbn(livro.getIsbn());
+
+            if (livroExistente != null && !livroExistente.getId().equals(livro.getId())) {
+                throw new IllegalArgumentException("Erro: Não é possível usar o ISBN de outro livro já cadastrado.");
+            }
+        }
+
         if (livro.getId() == null) {
             livroDAOImpl.salvar(livro);
         } else {
