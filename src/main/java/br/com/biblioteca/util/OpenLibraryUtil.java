@@ -13,7 +13,7 @@ import java.util.logging.Logger;
  */
 public class OpenLibraryUtil {
     private static final Logger LOGGER = Logger.getLogger(OpenLibraryUtil.class.getName());
-    private static final String URL_API = "https://openlibrary.org";
+    private static final String URL = "https://openlibrary.org";
     private static final int TIMEOUT = 5000; // 5 segundos
 
     // Metodo  para criar e configurar a conexão
@@ -33,7 +33,7 @@ public class OpenLibraryUtil {
 
     public static JSONObject buscarLivroPorISBN(String isbn) {
         try {
-            String urlStr = URL_API + "/isbn/" + isbn + ".json";
+            String urlStr = URL + "/isbn/" + isbn + ".json";
             HttpURLConnection conexao = criarConexao(urlStr);
 
             int responseCode = conexao.getResponseCode();
@@ -51,13 +51,13 @@ public class OpenLibraryUtil {
     }
 
     /**
-     * Busca os dados de um autor na OpenLibrary usando sua chave (key).
+     * Busca os dados do autor na OpenLibrary usando sua chave (key).
      * @param autorKey A chave do autor (ex: "/authors/OL2032671A").
      * @return Um JSONObject contendo os dados do autor ou null se a busca falhar.
      */
     public static JSONObject buscarAutorPorChave(String autorKey) {
         try {
-            String urlStr = URL_API + autorKey + ".json";
+            String urlStr = URL + autorKey + ".json";
             HttpURLConnection conexao = criarConexao(urlStr);
 
             int responseCode = conexao.getResponseCode();

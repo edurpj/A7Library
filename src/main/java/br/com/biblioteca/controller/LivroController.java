@@ -1,18 +1,24 @@
 package br.com.biblioteca.controller;
 
+import br.com.biblioteca.enums.DataEnum;
 import br.com.biblioteca.model.entity.Livro;
 import br.com.biblioteca.service.impl.LivroServiceImpl;
 import br.com.biblioteca.util.ImportacaoCSVUtil;
 import br.com.biblioteca.util.OpenLibraryUtil;
 import org.json.JSONObject;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Logger;
 
+import static br.com.biblioteca.Constants.ISBN_INVALIDO;
+import static br.com.biblioteca.Constants.OBRIGATORIO;
+
 /**
- * Controla a lógica de negócio para a tela de cadastro de livros.
+ * Lógica de negócio para a tela de cadastro de livros.
  */
 public class LivroController {
     private static final Logger LOGGER = Logger.getLogger(LivroController.class.getName());
@@ -24,21 +30,21 @@ public class LivroController {
 
     /**
      * Busca dados de um livro na OpenLibrary pelo ISBN.
+     *
      * @param isbn O ISBN do livro.
-     * @return Um objeto Livro com os dados preenchidos ou null se não encontrado.
      */
     public Livro buscarLivroPorISBN(String isbn) throws Exception {
-        JSONObject obj = OpenLibraryUtil.buscarLivroPorISBN(isbn);
-        if (obj == null) {
+        JSONObject objLivro = OpenLibraryUtil.buscarLivroPorISBN(isbn);
+        if (objLivro == null) {
             return null;
         }
 
         Livro livro = new Livro();
-        livro.setTitulo(obj.optString("title", ""));
+        livro.setTitulo(objLivro.optString("title", ""));
         livro.setIsbn(isbn);
 
-        if (obj.has("publishers")) {
-            Object primeiroItem = obj.getJSONArray("publishers").get(0);
+        if (objLivro.has("publishers")) {
+            Object primeiroItem = objLivro.getJSONArray("publishers").get(0);
             if (primeiroItem instanceof JSONObject) {
                 JSONObject editoraObj = (JSONObject) primeiroItem;
                 livro.setEditora(editoraObj.optString("name", ""));
@@ -47,19 +53,14 @@ public class LivroController {
             }
         }
 
-        if (obj.has("publish_date")) {
-            String dataCompleta = obj.getString("publish_date");
-            if (dataCompleta.length() > 4) {
-                livro.setDataPublicacao(new SimpleDateFormat("yyyy").parse(dataCompleta.substring(0, 4)));
-            } else {
-                livro.setDataPublicacao(new SimpleDateFormat("yyyy").parse(dataCompleta));
-            }
+        if (objLivro.has("publish_date")) {
+            String dataCompleta = objLivro.getString("publish_date");
+            livro.setDataPublicacao(parseDateFromOpenLibrary(dataCompleta));
         }
 
-        // Processamento dos Autores
-        if (obj.has("authors")) {
+        if (objLivro.has("authors")) {
             StringBuilder autores = new StringBuilder();
-            for (Object a : obj.getJSONArray("authors")) {
+            for (Object a : objLivro.getJSONArray("authors")) {
                 JSONObject autorObj = (JSONObject) a;
                 if (autorObj.has("key")) {
                     String autorKey = autorObj.optString("key", "");
@@ -79,18 +80,50 @@ public class LivroController {
     }
 
     /**
+     * Metodo para auxiliar na analise da formatação da data retornada pela API.
+     */
+    private Date parseDateFromOpenLibrary(String dateString) {
+        if (dateString == null || dateString.isEmpty()) {
+            return null;
+        }
+
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("MMMM dd, yyyy", Locale.ENGLISH);
+            formatter.setLenient(false);
+            return formatter.parse(dateString);
+        } catch (java.text.ParseException e) {
+            try {
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
+                formatter.setLenient(false);
+                return formatter.parse(dateString);
+            } catch (java.text.ParseException e2) {
+                try {
+                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                    formatter.setLenient(false);
+                    return formatter.parse(dateString);
+                } catch (java.text.ParseException e3) {
+                    String[] parts = dateString.split(" ");
+                    if (parts.length >= 2) {
+                        int mes = DataEnum.getNumMes(parts[0]);
+                        int ano = Integer.parseInt(parts[parts.length - 1]);
+                        if (mes != -1) {
+                            return new Date(ano - 1900, mes - 1, 1);
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Valida e salva os dados do livro.
+     *
      * @param livro O objeto Livro a ser salvo.
      */
     public void salvarLivro(Livro livro) throws IllegalArgumentException, ParseException {
 
         validarCampos(livro);
-
-        // Caso a API retorne somente o ano, é formatado para 01/01 + ano, afim de não ter problema durante a persistencia.
-        String dataString = new SimpleDateFormat("dd/MM/yyyy").format(livro.getDataPublicacao());
-        if (dataString.length() == 4) {
-            livro.setDataPublicacao(new SimpleDateFormat("dd/MM/yyyy").parse("01/01/" + dataString));
-        }
 
         livroServiceImpl.salvarOuAtualizar(livro);
         LOGGER.info("Dados salvos com sucesso!");
@@ -98,35 +131,35 @@ public class LivroController {
 
     private void validarCampos(Livro livro) throws IllegalArgumentException {
         if (livro.getTitulo().trim().isEmpty()) {
-            throw new IllegalArgumentException("O campo 'Título' é obrigatório.");
+            throw new IllegalArgumentException("O campo 'Título' " + OBRIGATORIO);
         }
         if (livro.getAutores().trim().isEmpty()) {
-            throw new IllegalArgumentException("O campo 'Autores' é obrigatório.");
-        }
-        if (livro.getIsbn().trim().isEmpty()) {
-            throw new IllegalArgumentException("O campo 'ISBN' é obrigatório.");
+            throw new IllegalArgumentException("O campo 'Autores' " + OBRIGATORIO);
         }
 
-        String data = new SimpleDateFormat("dd/MM/yyyy").format(livro.getDataPublicacao());
-        if (!data.isEmpty()) {
-            try {
-                if (data.length() == 4) {
-                    Integer.parseInt(data);
-                } else {
-                    new SimpleDateFormat("dd/MM/yyyy").parse(data);
+        //Validação tipo ISBN
+        try {
+            String isbnSemChar = livro.getIsbn().replace("-", "");
+
+            if (!isbnSemChar.matches("\\d+")) {
+                if (!(isbnSemChar.length() == 10 && isbnSemChar.endsWith("X"))) {
+                    throw new IllegalArgumentException(ISBN_INVALIDO)
+                    ;
                 }
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Formato de data inválido. Use AAAA ou dd/MM/yyyy.");
             }
+
+            Long.parseLong(isbnSemChar.replace("X", "0"));
+
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(ISBN_INVALIDO);
+        }
+        if (livro.getDataPublicacao() == null) {
+            throw new IllegalArgumentException("O campo 'Data de Publicação' " + OBRIGATORIO);
         }
     }
 
     public List<Livro> listarTodos() {
         return livroServiceImpl.listarTodos();
-    }
-
-    public Livro buscarLivroPorId(Long id) {
-        return livroServiceImpl.listarTodos().stream().filter(l -> l.getId().equals(id)).findFirst().orElse(null);
     }
 
     public void excluirLivro(Long id) {
@@ -137,7 +170,14 @@ public class LivroController {
         return livroServiceImpl.pesquisar(info);
     }
 
+    public Livro buscarLivroPorId(Long id) {
+        return livroServiceImpl.buscarLivroPorId(id);
+    }
+
     public void importarCSV(String caminho) {
         ImportacaoCSVUtil.importarCSV(caminho, livroServiceImpl);
     }
+
+    public LivroServiceImpl getLivroService() { return this.livroServiceImpl; }
+
 }

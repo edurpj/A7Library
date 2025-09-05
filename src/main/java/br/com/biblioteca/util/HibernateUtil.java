@@ -1,4 +1,4 @@
-package util;
+package br.com.biblioteca.util;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;

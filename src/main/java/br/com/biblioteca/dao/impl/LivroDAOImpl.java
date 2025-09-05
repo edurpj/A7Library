@@ -2,6 +2,7 @@ package br.com.biblioteca.dao.impl;
 
 import br.com.biblioteca.dao.LivroDAO;
 import br.com.biblioteca.model.entity.Livro;
+import br.com.biblioteca.ui.LivroCadastroFrame;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -13,6 +14,8 @@ import java.util.List;
  */
 public class LivroDAOImpl implements LivroDAO {
     private final EntityManager em;
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(LivroDAOImpl.class.getName());
+
 
     public LivroDAOImpl(EntityManager em) {
         this.em = em;
@@ -79,10 +82,21 @@ public class LivroDAOImpl implements LivroDAO {
 
     @Override
     public List<Livro> pesquisar(String infoLivro) {
+        if (infoLivro == null || infoLivro.trim().isEmpty()) {
+            // Se o termo de pesquisa estiver vazio, retorna todos os livros
+            return em.createQuery("SELECT l FROM Livro l", Livro.class).getResultList();
+        }
+
         TypedQuery<Livro> query = em.createQuery(
-                "SELECT l FROM Livro l WHERE l.titulo LIKE :infoLivro OR l.autores LIKE :infoLivro OR l.isbn LIKE :infoLivro OR l.editora LIKE :infoLivro",
+                "SELECT l FROM Livro l WHERE "
+                        + "LOWER(l.titulo) LIKE LOWER(:infoLivro) OR "
+                        + "LOWER(l.autores) LIKE LOWER(:infoLivro) OR "
+                        + "LOWER(l.isbn) LIKE LOWER(:infoLivro) OR "
+                        + "LOWER(l.editora) LIKE LOWER(:infoLivro)",
                 Livro.class);
+
         query.setParameter("infoLivro", "%" + infoLivro + "%");
+
         return query.getResultList();
     }
 }

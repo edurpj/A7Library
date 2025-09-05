@@ -18,18 +18,6 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>br.com.biblioteca.ui.CadastroFrame</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.3.0</version>
                 <configuration>
@@ -38,7 +26,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>br.com.biblioteca.ui.CadastroFrame</mainClass>
+                            <mainClass>br.com.biblioteca.ui.LivroCadastroFrame</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -54,7 +42,6 @@
             </plugin>
         </plugins>
     </build>
-
     <dependencies>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -91,13 +78,11 @@
             <artifactId>json</artifactId>
             <version>20210307</version>
         </dependency>
-
         <dependency>
-            <groupId>org.jdatepicker</groupId>
-            <artifactId>jdatepicker</artifactId>
-            <version>1.3.4</version>
+            <groupId>org.netbeans.external</groupId>
+            <artifactId>AbsoluteLayout</artifactId>
+            <version>RELEASE270</version>
         </dependency>
-
     </dependencies>
 
 </project>

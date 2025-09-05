@@ -12,6 +12,7 @@ import java.util.List;
  */
 public class LivroServiceImpl implements LivroService {
     private LivroDAOImpl livroDAOImpl;
+    private EntityManager entityManager;
 
     public LivroServiceImpl(EntityManager em) {
         this.livroDAOImpl = new LivroDAOImpl(em);
@@ -22,6 +23,16 @@ public class LivroServiceImpl implements LivroService {
             livroDAOImpl.salvar(livro);
         } else {
             livroDAOImpl.atualizar(livro);
+        }
+    }
+
+    public Livro buscarLivroPorId(Long id) {
+        try {
+            return entityManager.find(Livro.class, id);
+        } catch (Exception e) {
+            System.err.println("Erro ao buscar livro por ID: " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
     }
 
