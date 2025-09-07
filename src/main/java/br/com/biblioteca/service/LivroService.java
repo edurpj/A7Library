@@ -34,4 +34,10 @@ public interface LivroService {
      * @return Uma lista de objetos Livro que correspondem a informação.
      */
     List<Livro> pesquisar(String infoLivro);
+
+    /**
+     * Importa livros com base em um arquivo.
+     * @param caminhoArquivo caminho do arquivo com os dados do livro.
+     */
+    void importarLivros(String caminhoArquivo) throws Exception;
 }

@@ -83,7 +83,6 @@ public class LivroDAOImpl implements LivroDAO {
     @Override
     public List<Livro> pesquisar(String infoLivro) {
         if (infoLivro == null || infoLivro.trim().isEmpty()) {
-            // Se o termo de pesquisa estiver vazio, retorna todos os livros
             return em.createQuery("SELECT l FROM Livro l", Livro.class).getResultList();
         }
 

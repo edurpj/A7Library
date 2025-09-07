@@ -137,14 +137,12 @@ public class LivroController {
             throw new IllegalArgumentException("O campo 'Autores' " + OBRIGATORIO);
         }
 
-        //Validação tipo ISBN
         try {
             String isbnSemChar = livro.getIsbn().replace("-", "");
 
             if (!isbnSemChar.matches("\\d+")) {
                 if (!(isbnSemChar.length() == 10 && isbnSemChar.endsWith("X"))) {
-                    throw new IllegalArgumentException(ISBN_INVALIDO)
-                    ;
+                    throw new IllegalArgumentException(ISBN_INVALIDO);
                 }
             }
 
@@ -174,10 +172,12 @@ public class LivroController {
         return livroServiceImpl.buscarLivroPorId(id);
     }
 
-    public void importarCSV(String caminho) {
-        ImportacaoCSVUtil.importarCSV(caminho, livroServiceImpl);
+    public void importarCSV(String caminho) throws Exception {
+        ImportacaoCSVUtil.lerArquivo(caminho);
     }
 
-    public LivroServiceImpl getLivroService() { return this.livroServiceImpl; }
+    public LivroServiceImpl getLivroService() {
+        return this.livroServiceImpl;
+    }
 
 }

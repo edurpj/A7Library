@@ -3,6 +3,7 @@ package br.com.biblioteca.service.impl;
 import br.com.biblioteca.dao.impl.LivroDAOImpl;
 import br.com.biblioteca.model.entity.Livro;
 import br.com.biblioteca.service.LivroService;
+import br.com.biblioteca.util.ImportacaoCSVUtil;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -26,9 +27,7 @@ public class LivroServiceImpl implements LivroService {
             if (livroExistente != null) {
                 throw new IllegalArgumentException("Erro: Já existe um livro cadastrado com este ISBN.");
             }
-        }
-
-        else {
+        } else {
 
             Livro livroExistente = livroDAOImpl.buscarPorIsbn(livro.getIsbn());
 
@@ -54,7 +53,30 @@ public class LivroServiceImpl implements LivroService {
         }
     }
 
-    public void excluir(Long id) { livroDAOImpl.excluir(id); }
+    public void importarLivros(String caminhoArquivo) throws Exception {
+
+        List<Livro> livrosImportados = ImportacaoCSVUtil.lerArquivo(caminhoArquivo);
+
+        for (Livro livroDoArquivo : livrosImportados) {
+
+            Livro livroExistente = livroDAOImpl.buscarPorIsbn(livroDoArquivo.getIsbn());
+
+            if (livroExistente != null) {
+                livroExistente.setTitulo(livroDoArquivo.getTitulo());
+                livroExistente.setAutores(livroDoArquivo.getAutores());
+                livroExistente.setDataPublicacao(livroDoArquivo.getDataPublicacao());
+                livroExistente.setEditora(livroDoArquivo.getEditora());
+
+                salvarOuAtualizar(livroExistente);
+            } else {
+                salvarOuAtualizar(livroDoArquivo);
+            }
+        }
+    }
+
+    public void excluir(Long id) {
+        livroDAOImpl.excluir(id);
+    }
 
     public List<Livro> listarTodos() {
         return livroDAOImpl.listarTodos();
