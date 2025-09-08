@@ -7,7 +7,7 @@ import javax.persistence.EntityManager;
 public class TesteConexaoDB {
     public static void main(String[] args) {
         EntityManager em = JPAUtil.getEntityManager();
-        System.out.println("✅ Conectado ao PostgreSQL!");
+        System.out.println("✅ Conectado ao Banco de Dados!");
         em.close();
     }
 }
