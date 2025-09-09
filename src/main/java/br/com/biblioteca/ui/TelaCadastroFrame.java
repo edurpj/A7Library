@@ -51,6 +51,7 @@ public class TelaCadastroFrame extends javax.swing.JDialog {
 
         if (livro != null) {
             preencherCampos(livro);
+            selecionarLivroNaTabela(livro);
         }
 
         //Listener para pegar a linha selecionada e preencher os campos
@@ -256,6 +257,20 @@ public class TelaCadastroFrame extends javax.swing.JDialog {
         calendarioDialog.setSize(300, 200);
         calendarioDialog.setLocationRelativeTo(jButton8);
         calendarioDialog.setVisible(true);
+    }
+
+    /**
+     * metodo para selecionar a linha do livro na tabela
+     */
+    private void selecionarLivroNaTabela(Livro livro) {
+        if (livro != null && livrosAtuais != null) {
+            for (int i = 0; i < livrosAtuais.size(); i++) {
+                if (livrosAtuais.get(i).getIsbn().equals(livro.getIsbn())) {
+                    jTable1.setRowSelectionInterval(i, i);
+                    break;
+                }
+            }
+        }
     }
 
     /**
@@ -692,20 +707,18 @@ public class TelaCadastroFrame extends javax.swing.JDialog {
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {
 
         JFileChooser fileChooser = new JFileChooser();
-        int arqivoEscolhido = fileChooser.showOpenDialog(this);
+        int resultado = fileChooser.showOpenDialog(this);
 
-        if (arqivoEscolhido == JFileChooser.APPROVE_OPTION) {
+        if (resultado == JFileChooser.APPROVE_OPTION) {
             String caminhoArquivo = fileChooser.getSelectedFile().getAbsolutePath();
-
             try {
                 livroServiceImpl.importarLivros(caminhoArquivo);
-
                 JOptionPane.showMessageDialog(this, "Importação concluída com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-
-                atualizarTabela(livroServiceImpl.listarTodos());
-
+                atualizarTabela(livroController.listarTodos());
+            } catch (IllegalArgumentException e) {
+                JOptionPane.showMessageDialog(this, e.getMessage(), "Erro de Importação", JOptionPane.ERROR_MESSAGE);
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Erro durante a importação: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Ocorreu um erro durante a importação. Verifique o formato do arquivo.", "Erro de Importação", JOptionPane.ERROR_MESSAGE);
                 e.printStackTrace();
             }
         }

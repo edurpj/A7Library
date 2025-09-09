@@ -5,6 +5,7 @@
 package br.com.biblioteca.ui;
 
 import br.com.biblioteca.controller.LivroController;
+import br.com.biblioteca.dao.impl.LivroDAOImpl;
 import br.com.biblioteca.model.entity.Livro;
 import br.com.biblioteca.service.impl.LivroServiceImpl;
 import br.com.biblioteca.util.DialogPesquisarUtil;
@@ -18,13 +19,14 @@ import java.awt.*;
 import java.util.List;
 
 import static br.com.biblioteca.Constants.ERRO_TABELA;
+import static br.com.biblioteca.Constants.ERRO_EXCLUIR;
 
 /**
  *
  * @author Edurpj
  */
 public class LivroCadastroFrame extends javax.swing.JDialog {
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(LivroCadastroFrame.class.getName());
     private LivroController livroController;
     private LivroServiceImpl livroServiceImpl;
@@ -48,6 +50,23 @@ public class LivroCadastroFrame extends javax.swing.JDialog {
             javax.swing.JOptionPane.showMessageDialog(this, ERRO_TABELA + ex.getMessage(), "Erro", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
     }
+public void linhaSelecionadaEdicaoExclusao() {
+    int linhaSelecionada = jTable1.getSelectedRow();
+    if (linhaSelecionada == -1) {
+        JOptionPane.showMessageDialog(this, "Selecione um livro para editar ou excluir.", "Aviso", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    Long idLivro = (Long) jTable1.getValueAt(linhaSelecionada, 0);
+
+    Livro livroParaEditar = livroController.buscarLivroPorId(idLivro);
+
+    TelaCadastroFrame telaCadastro = new TelaCadastroFrame(this, livroServiceImpl, livroParaEditar);
+    telaCadastro.setVisible(true);
+
+    atualizarTabela(livroController.listarTodos());
+}
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -75,21 +94,21 @@ public class LivroCadastroFrame extends javax.swing.JDialog {
         jLabel1.setToolTipText("");
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
-            },
-            new String [] {
-                "ID", "Título", "Autor", "Editora", "ISBN", "Data de publicação"
-            }
+                new Object [][] {
+                        {null, null, null, null, null, null},
+                        {null, null, null, null, null, null},
+                        {null, null, null, null, null, null},
+                        {null, null, null, null, null, null}
+                },
+                new String [] {
+                        "ID", "Título", "Autor", "Editora", "ISBN", "Data de publicação"
+                }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+                    java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false
+                    false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -112,6 +131,11 @@ public class LivroCadastroFrame extends javax.swing.JDialog {
 
         jButton2.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
         jButton2.setText("Editar");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
         jButton3.setText("Cadastrar");
@@ -139,70 +163,73 @@ public class LivroCadastroFrame extends javax.swing.JDialog {
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(18, 18, 18)
-                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(33, 33, 33)
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 674, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jButton3)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(jButton2)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(jButton1)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(jButton4))))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(293, 293, 293)
-                                .addComponent(jLabel7)))
-                        .addGap(0, 69, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addGap(18, 18, 18)
+                                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addGap(33, 33, 33)
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 674, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addGroup(layout.createSequentialGroup()
+                                                                .addComponent(jButton3)
+                                                                .addGap(18, 18, 18)
+                                                                .addComponent(jButton2)
+                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                                .addComponent(jButton1)
+                                                                .addGap(18, 18, 18)
+                                                                .addComponent(jButton4))))
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addGap(293, 293, 293)
+                                                .addComponent(jLabel7)))
+                                .addContainerGap(69, Short.MAX_VALUE))
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(9, 9, 9)
-                .addComponent(jLabel7)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 277, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton3)
-                    .addComponent(jButton2)
-                    .addComponent(jButton1)
-                    .addComponent(jButton4))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 80, Short.MAX_VALUE)
-                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(9, 9, 9)
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 277, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(jButton3)
+                                        .addComponent(jButton2)
+                                        .addComponent(jButton1)
+                                        .addComponent(jButton4))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 80, Short.MAX_VALUE)
+                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
-        TelaCadastroFrame telaCadastro = new TelaCadastroFrame(this, livroServiceImpl, new Livro());
-        telaCadastro.setVisible(true);
+
+        linhaSelecionadaEdicaoExclusao();
+
+        atualizarTabela(livroController.listarTodos());
     }
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {
-        TelaCadastroFrame telaCadastro = new TelaCadastroFrame(this, livroServiceImpl, new Livro());
-        telaCadastro.setVisible(true);
+        linhaSelecionadaEdicaoExclusao();
+
+        atualizarTabela(livroController.listarTodos());
     }
+
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {
         TelaCadastroFrame telaCadastro = new TelaCadastroFrame(this, livroServiceImpl, new Livro());
         telaCadastro.setVisible(true);
+        atualizarTabela(livroController.listarTodos());
     }
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {
@@ -225,7 +252,7 @@ public class LivroCadastroFrame extends javax.swing.JDialog {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -245,8 +272,9 @@ public class LivroCadastroFrame extends javax.swing.JDialog {
             public void run() {
                 EntityManagerFactory emf = Persistence.createEntityManagerFactory("bibliotecaPU");
                 EntityManager em = emf.createEntityManager();
+                LivroDAOImpl livroDAO = new LivroDAOImpl(em);
 
-                LivroServiceImpl livroService = new LivroServiceImpl(em);
+                LivroServiceImpl livroService = new LivroServiceImpl(livroDAO, em);
                 LivroCadastroFrame dialog = new LivroCadastroFrame(new javax.swing.JFrame(), true, livroService);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override

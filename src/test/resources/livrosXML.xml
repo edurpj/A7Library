@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Livros>
+    <Livro>
+        <id>1</id> 
+        <titulo>O Ladrão de Raios teste</titulo>
+        <autores>Rick Riordan</autores>
+        <editora>Intrínseca</editora>
+        <isbn>978-85-98078-22-5</isbn>
+        <dataPublicacao>2005-06-28</dataPublicacao>
+    </Livro>
+    
+    <Livro>
+        <id>2</id>
+        <titulo>A Sociedade do Anel</titulo>
+        <autores>J.R.R. Tolkien</autores>
+        <editora>HarperCollins</editora>
+        <isbn>978-85-98078-95-5</isbn>
+        <dataPublicacao>1954-07-29</dataPublicacao>
+    </Livro>
+    
+    <Livro>
+        <id>3</id>
+        <titulo>O Hobbit teste</titulo>
+        <autores>J.R.R. Tolkien</autores>
+        <editora>HarperCollins</editora>
+        <isbn>978-85-98078-30-5</isbn>
+        <dataPublicacao>1937-09-21</dataPublicacao>
+    </Livro>
+</Livros>

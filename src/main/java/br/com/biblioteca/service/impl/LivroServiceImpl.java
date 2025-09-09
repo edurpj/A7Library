@@ -1,9 +1,11 @@
 package br.com.biblioteca.service.impl;
 
+import br.com.biblioteca.controller.LivroController;
 import br.com.biblioteca.dao.impl.LivroDAOImpl;
 import br.com.biblioteca.model.entity.Livro;
 import br.com.biblioteca.service.LivroService;
 import br.com.biblioteca.util.ImportacaoCSVUtil;
+import br.com.biblioteca.util.ImportacaoXMLUtil;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -15,25 +17,17 @@ public class LivroServiceImpl implements LivroService {
     private LivroDAOImpl livroDAOImpl;
     private EntityManager entityManager;
 
-    public LivroServiceImpl(EntityManager em) {
-        this.livroDAOImpl = new LivroDAOImpl(em);
+    public LivroServiceImpl(LivroDAOImpl livroDAOImpl, EntityManager entityManager) {
+        this.livroDAOImpl = livroDAOImpl;
+        this.entityManager = entityManager;
     }
 
     public void salvarOuAtualizar(Livro livro) {
 
-        if (livro.getId() == null) {
-            Livro livroExistente = livroDAOImpl.buscarPorIsbn(livro.getIsbn());
+        Livro livroExistente = livroDAOImpl.buscarPorIsbn(livro.getIsbn());
 
-            if (livroExistente != null) {
-                throw new IllegalArgumentException("Erro: Já existe um livro cadastrado com este ISBN.");
-            }
-        } else {
-
-            Livro livroExistente = livroDAOImpl.buscarPorIsbn(livro.getIsbn());
-
-            if (livroExistente != null && !livroExistente.getId().equals(livro.getId())) {
-                throw new IllegalArgumentException("Erro: Não é possível usar o ISBN de outro livro já cadastrado.");
-            }
+        if (livroExistente != null && !livroExistente.getId().equals(livro.getId())) {
+            throw new IllegalArgumentException("Erro: Já existe um livro cadastrado com este ISBN.");
         }
 
         if (livro.getId() == null) {
@@ -55,24 +49,27 @@ public class LivroServiceImpl implements LivroService {
 
     public void importarLivros(String caminhoArquivo) throws Exception {
 
-        List<Livro> livrosImportados = ImportacaoCSVUtil.lerArquivo(caminhoArquivo);
+        List<Livro> livrosImportados;
+
+        if (caminhoArquivo.toLowerCase().endsWith(".csv")) {
+            livrosImportados = ImportacaoCSVUtil.lerArquivo(caminhoArquivo);
+        } else if (caminhoArquivo.toLowerCase().endsWith(".xml")) {
+            livrosImportados = ImportacaoXMLUtil.lerArquivo(caminhoArquivo);
+        } else {
+            throw new IllegalArgumentException("Formato de arquivo não suportado. Por favor, selecione um arquivo .csv ou .xml.");
+        }
 
         for (Livro livroDoArquivo : livrosImportados) {
-
             Livro livroExistente = livroDAOImpl.buscarPorIsbn(livroDoArquivo.getIsbn());
 
             if (livroExistente != null) {
-                livroExistente.setTitulo(livroDoArquivo.getTitulo());
-                livroExistente.setAutores(livroDoArquivo.getAutores());
-                livroExistente.setDataPublicacao(livroDoArquivo.getDataPublicacao());
-                livroExistente.setEditora(livroDoArquivo.getEditora());
-
-                salvarOuAtualizar(livroExistente);
-            } else {
-                salvarOuAtualizar(livroDoArquivo);
+                livroDoArquivo.setId(livroExistente.getId());
             }
+
+            salvarOuAtualizar(livroDoArquivo);
         }
     }
+
 
     public void excluir(Long id) {
         livroDAOImpl.excluir(id);
