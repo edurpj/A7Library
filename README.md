@@ -83,7 +83,7 @@ Crie e configure as variáveis de ambiente **`JAVA_HOME`** e **`MAVEN_HOME`** pa
 
 #### **Passo 2: Clonar e Configurar o Projeto**
 
-1.  Clone o projeto do repositório Git: `https://github.com/edurpj/A7Library/tree/master`
+1.  Clone o projeto do repositório Git: `https://github.com/edurpj/A7Library`
 2.  Importe o projeto em sua IDE.
 3.  Nas configurações do projeto na IDE, certifique-se de usar o **JDK 1.8.201** e o **Maven 3.6.11**.
 
