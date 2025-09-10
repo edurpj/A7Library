@@ -39,7 +39,7 @@ A aplicação segue uma arquitetura em camadas, baseada nos princípios do **Mod
 
 ### **4. Padrões de Projeto (Design Patterns)**
 
-O projeto emprega os seguintes padrões para garantir a clareza e a manutenção do código:
+O projeto emprega os seguintes padrões para garantir a clareza e fácil manutenção do código:
 
   * **Data Access Object (DAO):** Desacopla a lógica de negócio do acesso a dados. O `LivroDAO` define a interface, e o `LivroDAOImpl` fornece a implementação específica com **Hibernate**.
   * **Service Layer:** O `LivroServiceImpl` centraliza as regras de negócio, evitando que a lógica seja espalhada pela interface de usuário.
