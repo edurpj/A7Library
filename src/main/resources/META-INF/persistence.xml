@@ -10,7 +10,6 @@
         <class>br.com.biblioteca.model.entity.Livro</class>
 
         <properties>
-            <!-- Configuração PostgreSQL -->
             <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
             <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/postgres"/>
             <property name="jakarta.persistence.jdbc.user" value="postgres"/>
